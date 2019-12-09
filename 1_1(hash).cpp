@@ -41,7 +41,7 @@ public:
 				inserted++;
 				return true;
 			}
-
+			
 			if (data[h].tag == item::BUSY && data[h].key == key) return false;
 			i++;
 		}
@@ -53,7 +53,7 @@ public:
 		int j = 0;
 		for (auto h = hash(key, i); j < data.size(); h = hash(key, i)) {
 			if (data[h].tag == item::EMPTY) return false;
-
+			
 			if (data[h].tag == item::BUSY && data[h].key == key) {
 				data[h].tag = item::DELETED;
 				inserted--;
@@ -70,7 +70,7 @@ public:
 		int j = 0;
 		for (auto h = hash(key, i); j < data.size(); h = hash(key, i)) {
 			if (data[h].tag == item::EMPTY) return false;
-
+			
 			if (data[h].tag == item::BUSY && data[h].key == key) return true;
 			i++;
 			j++;
@@ -89,7 +89,7 @@ public:
 
 		data.clear();
 		inserted = 0;
-
+		
 		data.resize(old_size * 2);
 
 		for (int i = 0; i < help.size(); i++) {
@@ -142,32 +142,34 @@ private:
 
 int main() {
 	hashtable ht;
-	char comand;
-	int run = 1;
-	string s;
 
-	while (run) {
-		cout << "+ - insert, ? - find, - - delete, p - print" << endl;
-		cin >> comand;
-		switch (comand) {
-		case '+':
-			cin >> s;
-			cout << ht.insert(s) << endl;
-			break;
-			cin >> s;
-			cout << ht.find(s) << endl;
-			break;
-		case '-':
-			cin >> s;
-			cout << ht.erase(s) << endl;
-			break;
-		case 'p':
-			ht.print();
-			cout << endl;
-			break;
-		default:
-			break;
+	char c;
+	string s;
+	while (getline(cin, s)) {
+		if (s[0] == '+') {
+			s.erase(0, 2);
+			if (ht.insert(s))
+				cout << "OK" << endl;
+			else
+				cout << "FAIL" << endl;
+		}
+
+		if (s[0] == '?') {
+			s.erase(0, 2);
+			if (ht.find(s))
+				cout << "OK" << endl;
+			else
+				cout << "FAIL" << endl;
+		}
+
+		if (s[0] == '-') {
+			s.erase(0, 2);
+			if (ht.erase(s))
+				cout << "OK" << endl;
+			else
+				cout << "FAIL" << endl;
 		}
 	}
+
 	return 0;
 }
