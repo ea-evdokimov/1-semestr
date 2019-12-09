@@ -6,18 +6,12 @@
 Структура данных должна поддерживать операции добавления строки в множество,
 удаления строки из множества и проверки принадлежности данной строки множеству.
 1_1.Для разрешения коллизий используйте квадратичное пробирование.i - ая проба
-g(k, i) = g(k, i - 1) + i(mod m).m - степень двойки.
-!!! чисто математически вычисление i-ой пробы по функции из предыдущей строки будет точно такой же,
-как (hash(key, 0) + i / 2 + i * i / 2) % data.size()!!!*/
+g(k, i) = g(k, i - 1) + i(mod m).m - степень двойки.*/
 #include <vector>
 #include <iostream>
 #include <string>
 
 using namespace std;
-
-int incr(int i) {
-	return (i + i * i) / 2;
-}
 
 class hashtable {
 public:
@@ -30,18 +24,19 @@ public:
 	bool insert(string const& key) {
 		if (find(key))
 			return false;
-		if (inserted * 2 >= data.size()) {
+		
+		if (inserted * 4 >= data.size() * 3) {
 			rehash();
 		}
 
 		int i = 0;
-		for (auto h = hash(key, i); ; h = hash(key, i)) {
+		for (auto h = hash(key, i); ; h = (h + i) % data.size()) {
 			if (data[h].tag == item::EMPTY || data[h].tag == item::DELETED) {
 				data[h] = { key, item::BUSY };
 				inserted++;
 				return true;
 			}
-			
+
 			if (data[h].tag == item::BUSY && data[h].key == key) return false;
 			i++;
 		}
@@ -49,11 +44,10 @@ public:
 	}
 
 	bool erase(string const& key) {
-		int i = 0;
-		int j = 0;
-		for (auto h = hash(key, i); j < data.size(); h = hash(key, i)) {
+		int i = 0, j = 0;
+		for (auto h = hash(key, i); j < data.size(); h = (h + i) % data.size()) {
 			if (data[h].tag == item::EMPTY) return false;
-			
+
 			if (data[h].tag == item::BUSY && data[h].key == key) {
 				data[h].tag = item::DELETED;
 				inserted--;
@@ -66,11 +60,10 @@ public:
 	}
 
 	bool find(string const& key) {
-		int i = 0;
-		int j = 0;
-		for (auto h = hash(key, i); j < data.size(); h = hash(key, i)) {
+		int i = 0, j = 0;
+		for (auto h = hash(key, i); j < data.size(); h = (h + i) % data.size()) {
 			if (data[h].tag == item::EMPTY) return false;
-			
+
 			if (data[h].tag == item::BUSY && data[h].key == key) return true;
 			i++;
 			j++;
@@ -89,7 +82,7 @@ public:
 
 		data.clear();
 		inserted = 0;
-		
+
 		data.resize(old_size * 2);
 
 		for (int i = 0; i < help.size(); i++) {
@@ -107,7 +100,6 @@ public:
 			pow = (pow * hash_const);
 		}
 
-		hash += incr(i);
 		hash %= data.size();
 
 		return hash;
