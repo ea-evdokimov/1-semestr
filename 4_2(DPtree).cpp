@@ -4,6 +4,7 @@
 Время работы должно быть O(n).*/
 #include <vector>
 #include <iostream>
+#include <stack>
 
 using namespace std;
 typedef long long ll;
@@ -26,20 +27,24 @@ ll function(int n, ll dist_par, int desc) {
 	//+ сумма растояний для верхней части + 1(до родителя)
 }
 
-ll counting(const vector<vector<int>>& graph, int n, vector<int>& desc) {
-	//подсчет потомков элементов и суммы расстояний для корня за один dfs
-	ll res = 0;
+ll counting(const vector<vector<int>>& graph, vector<int>& desc, vector<ll> &dist) {
+	int i = graph.size() - 1;//идем с наибольших(нижних) элементов(гарантировано посещаем раньше, чем их родителя)
 
-	for (auto i = 0; i < graph[n].size(); i++) {
-		int next = graph[n][i];//потомок
+	while (i >= 0) {
+		desc[i]++;//сама вершина
 
-		res += counting(graph, next, desc) + desc[next];//до каждого потомка + еще одно ребро
-														//соединяющее next и текущую вершину
-		desc[n] += desc[next];
+		if (graph[i].size() != 0) {//если он не лист
+			int k = 0;
+			while(k < graph[i].size()) {//проебгаемся по его детям
+				dist[i] += (dist[graph[i][k]] + desc[graph[i][k]]);//до каждого потомка + еще одно ребро
+				desc[i] += desc[graph[i][k]];//инкрементируем потомков
+				k++;
+			}
+		}
+		i--;
 	}
-	desc[n]++;//+сама вершина
-	
-	return res;
+	//в итоге для корня сумма расстояний посчитана правильно
+	return dist[0];
 }
 
 int main() {
@@ -69,15 +74,15 @@ int main() {
 	}
 	
 	//заполнение конечного вектора
+	counting(graph, desc, dist);
+
 	for (int i = 0; i < n; i++) {
-		if(i == 0)
-			dist[0] = counting(graph, 0, desc);
-		else {
+		if (i != 0){
 			int par = parent[i];
 			dist[i] = function(n, dist[par], desc[i]);
 		}
 		cout << dist[i] << "\n";
-	}	
+	}
 
 	return 0;
 }
