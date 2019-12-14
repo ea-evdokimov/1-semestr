@@ -24,7 +24,7 @@ public:
 	bool insert(string const& key) {
 		if (find(key))
 			return false;
-		
+
 		if (inserted * 4 >= data.size() * 3) {
 			rehash();
 		}
@@ -35,8 +35,7 @@ public:
 				data[h] = { key, item::BUSY };
 				inserted++;
 				return true;
-			}
-
+			}			
 			if (data[h].tag == item::BUSY && data[h].key == key) return false;
 			i++;
 		}
@@ -44,8 +43,8 @@ public:
 	}
 
 	bool erase(string const& key) {
-		int i = 0, j = 0;
-		for (auto h = hash(key, i); j < data.size(); h = (h + i) % data.size()) {
+		int i = 0;
+		for (auto h = hash(key, i); i < data.size(); h = (h + i) % data.size()) {
 			if (data[h].tag == item::EMPTY) return false;
 
 			if (data[h].tag == item::BUSY && data[h].key == key) {
@@ -54,50 +53,42 @@ public:
 				return true;
 			}
 			i++;
-			j++;
 		}
 		return false;
 	}
 
 	bool find(string const& key) {
-		int i = 0, j = 0;
-		for (auto h = hash(key, i); j < data.size(); h = (h + i) % data.size()) {
+		int i = 0;
+		for (auto h = hash(key, i); i < data.size(); h = (h + i) % data.size()) {
 			if (data[h].tag == item::EMPTY) return false;
-
 			if (data[h].tag == item::BUSY && data[h].key == key) return true;
 			i++;
-			j++;
 		}
 		return false;
 	}
 
 	void rehash() {
-		int old_size = data.size();
-		vector<item> help;
+		vector<item> help(data.size());
 
-		for (int i = 0; i < old_size; i++) {
+		for (int i = 0; i < data.size(); i++) {
 			if (data[i].tag == item::BUSY)
 				help.push_back(data[i].key);
 		}
 
 		data.clear();
 		inserted = 0;
-
-		data.resize(old_size * 2);
-
+		data.resize(help.size() * 2);
 		for (int i = 0; i < help.size(); i++) {
 			insert(help[i].key);
 		}
 	}
 
-	long long hash(string const& key, int i) {
-		unsigned int hash_const = 29;
-		long long hash = 0;
-		unsigned int pow = 1;
-
+	int hash(string const& key, int i) {
+		int hash_const = 29;
+		int hash = 0;
+		
 		for (int i = 0; i < key.length(); i++) {
-			hash = (hash + (key[i] - 'a' + 1) * pow);
-			pow = (pow * hash_const);
+			hash = (hash + (key[i] - 'a' + 1)) * hash_const;
 		}
 
 		hash %= data.size();
