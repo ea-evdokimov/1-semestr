@@ -78,14 +78,15 @@ public:
 		data.clear();
 		inserted = 0;
 		data.resize(help.size() * 2);
+		
 		for (int i = 0; i < help.size(); i++) {
 			insert(help[i].key);
 		}
 	}
 
-	int hash(string const& key, int i) {
+	 unsigned int hash(string const& key, int i) {
 		int hash_const = 29;
-		int hash = 0;
+		unsigned int hash = 0;
 		
 		for (int i = 0; i < key.length(); i++) {
 			hash = (hash + (key[i] - 'a' + 1)) * hash_const;
@@ -94,13 +95,6 @@ public:
 		hash %= data.size();
 
 		return hash;
-	}
-
-	void print() {
-		for (int i = 0; i < data.size(); i++) {
-			if (data[i].tag == item::BUSY)
-				cout << i << "-" << data[i].key << endl;
-		}
 	}
 
 private:
@@ -115,9 +109,6 @@ private:
 		};
 		int tag = EMPTY;
 	};
-	void make_ins_null() {
-		inserted = 0;
-	}
 
 	vector<item> data;
 	size_t inserted = 0;
@@ -125,9 +116,9 @@ private:
 
 int main() {
 	hashtable ht;
-
 	char c;
 	string s;
+
 	while (getline(cin, s)) {
 		if (s[0] == '+') {
 			s.erase(0, 2);
